@@ -8,5 +8,4 @@
 - power for powersupply relais
 
 ##### Input Signals:
-- garage controller task for end position switches
-- garage controller signals
+- garage controller run signal
