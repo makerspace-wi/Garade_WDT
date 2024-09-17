@@ -1,17 +1,12 @@
-# Garage Entry System WDT
-### Watch dog timer for the Garage Entry System
-##### Prozessor Typ: ATTiny25 5 Volt
+# Entry_System
+### Check if Garage Door Control System is active
+##### Prozessor Typ: Arduino ATTiny x5
 ##### Components:
-- Controls signal form Entry System with 1500ms LOW and 500ms HIGH.
-- white flash after signal change from high to low: signal is in tolerance
-- Genarates a CPU reset if signal differs greater then 500ms HIGH or LOW
-- If HIGH signal is greater then 10000ms, a POWER Reset is genarated.
+- ATTiny controls output pulses of garage controller
 
 ##### Output Signals:
-- white LED (short: signal ok; long: sinal error, reset )
-- red LED left RESET Mini
-- red LED right above POWER Reset
+- power for powersupply relais
 
 ##### Input Signals:
-- signal for MINI
-- Serial input (not used in the moment)
+- garage controller task for end position switches
+- garage controller signals
