@@ -12,7 +12,7 @@ Pulse from Garage Mini (Pin 9)
 * last changes on 07.09.2024 by Michael Muehl
 * changed: start with programming
 */
-#define Version "1.0.X"
+#define Version "1.0.5"
 
 #include <Arduino.h>
 
@@ -28,11 +28,11 @@ Pulse from Garage Mini (Pin 9)
 #define PulsScan   1 // [ 1] Pulsscan * 16,5ms
 #define PulsHigh  30 // [30] * Pulsscan =495ms High
 #define PulsLow   30 // [30] * Pulsscan =495ms Low
-#define PulsTol   32 // [10] * Pulsscan =165ms Tolerance
+#define PulsTol   32 // [32] * Pulsscan =528ms Tolerance
 
-#define LedFlash      6 // [    6] ms for Flash
-#define PulsReset   500 // [  500] ms for Reset
-#define NoReStart 10000 // [10000] ms Mini not started
+#define LedFlash      6 // [  6] * 8ms Flash
+#define PulsReset   125 // [125] * 8ms Reset
+#define NoReStart  2425 // [250] * 8ms + [50](first sec) wait for Restart
 
 // VARIABLES
 unsigned int wdTimeL =  0;  // count puls for high
@@ -45,8 +45,6 @@ boolean valO;               // old input value
 int ledStatus = LOW;        // Status f�r die Blink-LED
 
 void setup() {
- // Serial.begin(115200); // nano debug
-
   pinMode(RES_REL, OUTPUT);
   pinMode(LEDPuls, OUTPUT);
   pinMode(showEvt, OUTPUT);
@@ -60,7 +58,6 @@ void setup() {
   digitalWrite(LEDPuls, LOW);  // [LOW]
   prev = millis();
 
-  // Serial.println("nano;POR");  // Entry System restart MM 15.07.19
 }
 
 // PROGRAM --------------------------------------
@@ -68,8 +65,6 @@ void loop()
 {
   if ((millis() - prev) >= PulsScan)
   {
-    // digitalWrite(showEvt, !digitalRead(showEvt));
-    // digitalWrite(showEvt, LOW);
     prev = millis();
     valN = digitalRead(WTDPuls);
     if (valN == LOW) {
@@ -79,7 +74,6 @@ void loop()
     }
     if (!valN && valO)
     {
-      // Serial.println("WD L / H + C: " + String(wdTimeL) + " " + String(wdTimeH) + " " + String(wdtCount));  // Nano Debug only
       digitalWrite(LEDPuls, HIGH);
       delay(LedFlash);
       digitalWrite(LEDPuls, LOW);
@@ -90,26 +84,17 @@ void loop()
   }
   if (wdTimeL > (PulsLow + PulsTol) || wdTimeH > (PulsHigh + PulsTol))
   {
-    // Serial.println("Pin RES LOW / HIGH: " + String(wdTimeL) + " " + String(wdTimeH));  // Nano Debug only
     digitalWrite(LEDPuls, HIGH);
     digitalWrite(RES_REL, LOW);
     delay(PulsReset);
     digitalWrite(RES_REL, HIGH);
-
-    prev = millis();
-    while (!digitalRead(WTDPuls)) // [!]
-    {
-      // delay(2);
-      // digitalWrite(showEvt, !digitalRead(showEvt));
-      // if ((millis() - prev) >= NoReStart)
-      // {
-      //   digitalWrite(showEvt, HIGH);
-      //   break;  
-      // }
-    }
+    // wait for next reset if no pulses arrived
+    digitalWrite(LEDPuls, LOW);
+    delay(LedFlash);
+    digitalWrite(LEDPuls, HIGH);
+    delay(NoReStart);
     digitalWrite(LEDPuls, LOW);
     wdTimeL = 0;
     wdTimeH = 0;
-    prev = millis();
   }
 }
