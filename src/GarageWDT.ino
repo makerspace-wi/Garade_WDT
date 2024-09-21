@@ -1,18 +1,18 @@
 /* started on 07SSep2024 - by Michael
 
-* Reset garage control
+ Check if garage controller is checking position
 
-Pulse from Garage Mini (Pin 9)
-* decoding with ATTiny and Reset Entry Mini with RESET-PIN or power off with relais
-* pulse length low:  0,5 sec
-* pulse length high: 0,5 sec WDT is runnig
-*                   RESET:
-*                   > 5 sec --> Relais
-*
-* last changes on 07.09.2024 by Michael Muehl
-* changed: start with programming
+ Pulse from Garage controller (Pin 9)
+  decoding with ATTiny and Reset Garage Controller over power relais
+  - check WDT pulse length:
+    low: <=0,5 sec and high: <=0,5 sec
+  - relais switching occurse if pulse lenght:
+    low: >1 sec or high >1 sec
+
+ last changes on 21.09.2024 by Michael Muehl
+ changed: add wait time after reset
 */
-#define Version "1.0.5"
+#define Version "1.0.6"
 
 #include <Arduino.h>
 
@@ -32,7 +32,7 @@ Pulse from Garage Mini (Pin 9)
 
 #define LedFlash      6 // [  6] * 8ms Flash
 #define PulsReset   125 // [125] * 8ms Reset
-#define NoReStart  2425 // [250] * 8ms + [50](first sec) wait for Restart
+#define NoReStart    35 // [ 35] (30sec) wait max for Restart
 
 // VARIABLES
 unsigned int wdTimeL =  0;  // count puls for high
@@ -92,7 +92,13 @@ void loop()
     digitalWrite(LEDPuls, LOW);
     delay(LedFlash);
     digitalWrite(LEDPuls, HIGH);
-    delay(NoReStart);
+    prev = millis();  // start
+    do
+    {
+      if (digitalRead(WTDPuls)) break;
+    }
+    while ((millis() - prev) < NoReStart * 100);
+    prev = millis();  // finished
     digitalWrite(LEDPuls, LOW);
     wdTimeL = 0;
     wdTimeH = 0;
