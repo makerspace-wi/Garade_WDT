@@ -9,10 +9,20 @@
   - relais switching occurse if pulse lenght:
     low: >1 sec or high >1 sec
 
- last changes on 21.09.2024 by Michael Muehl
- changed: add wait time after reset
+ last changes on 23.09.2024 by Michael Muehl
+ changed: add wait time before reset puls
 */
-#define Version "1.0.6"
+#define Version "1.0.7" // (Test = 1.0.7 ==> 1.0.8)
+// wdt time to check (tp = time for part of the programm) [tp = 16,5ms]
+#define PulsScan     1 // [ 1] * tp ( 16,5ms) Flash
+#define PulsHigh    30 // [30] * tp (495  ms) High
+#define PulsLow     30 // [30] * tp (495  ms) Low
+#define PulsTol     32 // [32] * tp (528  ms) Tolerance
+// wait time reset signal [tp = 8ms]
+#define LedFlash     6 // [   6] * tp (0,5s) Flash
+#define Be4PReset 3125 // [3125] * tp ( 25s) Before PulsReset
+#define PulsReset  125 // [ 125] * tp (  1s)Reset
+#define NoReStart   35 // [  35] (35s) max.wait for Restart
 
 #include <Arduino.h>
 
@@ -23,16 +33,6 @@
 #define WTDPuls 3   // [3 | PB3 | Pin 2] {Nano 6} input  - watch dog pulse
 #define showEvt 4   // [4 | PB4 | Pin 3] {Nano 7} output - show event
 //   [not used] 5   // [5 | PB5 | Pin 1] RESET 
-
-// counter set values
-#define PulsScan   1 // [ 1] Pulsscan * 16,5ms
-#define PulsHigh  30 // [30] * Pulsscan =495ms High
-#define PulsLow   30 // [30] * Pulsscan =495ms Low
-#define PulsTol   32 // [32] * Pulsscan =528ms Tolerance
-
-#define LedFlash      6 // [  6] * 8ms Flash
-#define PulsReset   125 // [125] * 8ms Reset
-#define NoReStart    35 // [ 35] (30sec) wait max for Restart
 
 // VARIABLES
 unsigned int wdTimeL =  0;  // count puls for high
@@ -85,12 +85,12 @@ void loop()
   if (wdTimeL > (PulsLow + PulsTol) || wdTimeH > (PulsHigh + PulsTol))
   {
     digitalWrite(LEDPuls, HIGH);
+    delay(Be4PReset);
+    digitalWrite(LEDPuls, LOW);
     digitalWrite(RES_REL, LOW);
     delay(PulsReset);
     digitalWrite(RES_REL, HIGH);
     // wait for next reset if no pulses arrived
-    digitalWrite(LEDPuls, LOW);
-    delay(LedFlash);
     digitalWrite(LEDPuls, HIGH);
     prev = millis();  // start
     do
