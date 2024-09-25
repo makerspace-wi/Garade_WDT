@@ -1,4 +1,4 @@
-# Entry_System
+# Garage Control
 ### Check if Garage Door Control System is active
 ##### Prozessor Typ: Arduino ATTiny x5
 ##### Components:

@@ -11,6 +11,7 @@
 
  last changes on 23.09.2024 by Michael Muehl
  changed: add wait time before reset puls
+ !!! Reset on the external red button genarates over WDT after 25s a second reset!!!
 */
 #define Version "1.0.7" // (Test = 1.0.7 ==> 1.0.8)
 // wdt time to check (tp = time for part of the programm) [tp = 16,5ms]
